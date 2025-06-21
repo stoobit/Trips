@@ -8,10 +8,24 @@
 import SwiftUI
 
 struct TripsView: View {
+    @Namespace var namespace
+    @State var selectedTrip: Trip?
+    
     var body: some View {
         NavigationStack {
             List(trips) { trip in
-                TripListItemView(trip: trip)
+                NavigationLink {
+                   TripDetailView(trip: trip)
+                        .navigationTransition(
+                            .zoom(sourceID: trip.id, in: namespace)
+                        )
+                } label: {
+                    TripListItemView(trip: trip)
+                }
+                .navigationLinkIndicatorVisibility(.hidden)
+                .matchedTransitionSource(
+                    id: trip.id, in: namespace
+                )
             }
             .listRowSpacing(20)
             .navigationTitle("My Trips")
@@ -22,6 +36,10 @@ struct TripsView: View {
                     }
                     .tint(Color.accent)
                 }
+            }
+            .background {
+                Color(uiColor: UIColor.systemGroupedBackground)
+                    .frame(width: 2000, height: 2000)
             }
         }
     }
@@ -44,7 +62,7 @@ let trips: [Trip] = [
     ),
 ]
 
-struct Trip: Identifiable {
+struct Trip: Identifiable, Hashable {
     var id: UUID = UUID()
     
     var title: String
